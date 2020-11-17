@@ -34,6 +34,7 @@
  /*doqowepfe*/
  /*test1*/
 /*ÀÚ ÀÌ°Å ¾ÈµÇ¸é ´Ù°°ÀÌ ³ë°¡´Ù ÇÏ´Â°Å¾ß~~~*/
+/*code test test test2*/
 
 #define KILO_VERSION "0.0.1"
 
@@ -627,12 +628,12 @@ void editorDelRow(int at) {
 
     if (at >= E.numrows) return;
     row = E.row+at;
-    editorFreeRow(row);//ì—´ ì‚­ì œ ë° ë©”ëª¨ë¦¬ í• ë‹¹í•´ì œ
+    editorFreeRow(row);//???? œ ë°?ë©”ëª¨ë¦?? ë‹¹?´ì œ
     memmove(E.row+at,E.row+at+1,sizeof(E.row[0])*(E.numrows-at-1));
     for(int j = at; j < E.numrows-1;j++){
 	    E.row[j].idx--;
-    }//í˜„ì¬ ì§€ì ë¶€í„° ë§ˆì§€ë§‰ì§€ì ê¹Œì§€ í•œì¹¸ì‹ ë‹¹ê¸°ê¸°
-    E.numrows--;//ì „ì²´ ì—´ ì‚­ì œ
+    }//?„ì¬ ì§€?ë???ë§ˆì?ë§‰ì??ê¹Œì§€ ?œì¹¸???¹ê¸°ê¸?
+    E.numrows--;//?„ì²´ ???? œ
     E.dirty++;
 }
 
@@ -691,7 +692,7 @@ void editorRowAppendString(erow *row, char *s, size_t len) {
     row->chars = realloc(row->chars,row->size+len+1);
     memcpy(row->chars+row->size,s,len);
     row->size += len;
-    row->chars[row->size] = '\0';//ë§ˆì§€ë§‰ì„ ë‚˜íƒ€ëƒ„
+    row->chars[row->size] = '\0';//ë§ˆì?ë§‰ì„ ?˜í???
     editorUpdateRow(row);
     E.dirty++;
 }

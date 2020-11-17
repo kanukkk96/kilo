@@ -31,11 +31,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- /*doqowepfe*/
- /*test1*/
-/*자 이거 안되면 다같이 노가다 하는거야~~~*/
-/*code test test test2*/
-
+ 
 #define KILO_VERSION "0.0.1"
 
 #ifdef __linux__

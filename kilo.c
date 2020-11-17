@@ -33,6 +33,8 @@
  */
  /*doqowepfe*/
  /*test1*/
+/*자 이거 안되면 다같이 노가다 하는거야~~~*/
+
 #define KILO_VERSION "0.0.1"
 
 #ifdef __linux__

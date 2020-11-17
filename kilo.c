@@ -126,7 +126,8 @@ enum KEY_ACTION{
         CTRL_U = 21,        /* Ctrl-u */
         ESC = 27,           /* Escape */
         BACKSPACE =  127,   /* Backspace */
-        /* The following are just soft codes, not really reported by the
+        CTRL_N = 14,
+	/* The following are just soft codes, not really reported by the
          * terminal directly. */
         ARROW_LEFT = 1000,
         ARROW_RIGHT,
@@ -138,7 +139,7 @@ enum KEY_ACTION{
         PAGE_UP,
         PAGE_DOWN
 };
-
+int displayNumberFlag=0;
 void editorSetStatusMessage(const char *fmt, ...);
 
 /* =========================== Syntax highlights DB =========================
@@ -911,6 +912,14 @@ void editorRefreshScreen(void) {
 
         r = &E.row[filerow];
 
+	if(displayNumberFlag){
+		char curRow[6];
+		snprintf(curRow,sizeof(curRow),"d",filerow);
+		abAppend(&ab,"\x1b[36m",5);
+		abAppend(&ab,curRow,strlen(curRow));
+		abAppend(&ab,"\x1b[0m",4);
+	}
+
         int len = r->rsize - E.coloff;
         int current_color = -1;
         if (len > 0) {
@@ -1244,6 +1253,16 @@ void editorProcessKeypress(int fd) {
     case CTRL_L: /* ctrl+l, clear screen */
         /* Just refresht the line as side effect. */
         break;
+    case CTRL_N:
+	if(displayNumberFlag){
+		displayNumberFlag = 0;
+		editorSetStatusMessage("set number off");
+	}
+	else{
+		displayNumberFlag = 1;
+		editorSetStatusMessage("set number on");
+	}
+	break;
     case ESC:
         /* Nothing to do for ESC in this mode. */
         break;

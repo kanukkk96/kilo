@@ -626,10 +626,12 @@ void editorDelRow(int at) {
 
     if (at >= E.numrows) return;
     row = E.row+at;
-    editorFreeRow(row);
+    editorFreeRow(row);//열 삭제 및 메모리 할당해제
     memmove(E.row+at,E.row+at+1,sizeof(E.row[0])*(E.numrows-at-1));
-    for (int j = at; j < E.numrows-1; j++) E.row[j].idx++;
-    E.numrows--;
+    for(int j = at; j < E.numrows-1;j++){
+	    E.row[j].idx--;
+    }//현재 지점부터 마지막지점까지 한칸식 당기기
+    E.numrows--;//전체 열 삭제
     E.dirty++;
 }
 
@@ -688,7 +690,7 @@ void editorRowAppendString(erow *row, char *s, size_t len) {
     row->chars = realloc(row->chars,row->size+len+1);
     memcpy(row->chars+row->size,s,len);
     row->size += len;
-    row->chars[row->size] = '\0';
+    row->chars[row->size] = '\0';//마지막을 나타냄
     editorUpdateRow(row);
     E.dirty++;
 }

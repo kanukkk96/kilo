@@ -13,6 +13,7 @@ Keys:
     CTRL-X: Remove one line
     CTRL-O: Help Option
     CTRL-N: Display row number
+    CTRL-D: Move to end of current line
 
 <h3> Contributors </h3>
 <ul>

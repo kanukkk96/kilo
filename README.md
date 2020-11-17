@@ -18,6 +18,6 @@ Keys:
 <h3> Contributors </h3>
 <ul>
 	<li> Geon Woo Kim </li>
-	<li> Deok Young Kim </li>
+	<li> Deok Yong Kim </li>
 	<li> Byeong Ik Park </li>
 </ul>

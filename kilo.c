@@ -32,6 +32,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
  /*doqowepfe*/
+ /*test1*/
 #define KILO_VERSION "0.0.1"
 
 #ifdef __linux__

@@ -12,6 +12,8 @@ Keys:
     CTRL-F: Find string in file
     CTRL-X: Remove one line
     CTRL-O: Help Option
+    CTRL-N: Display row number
+
 <h3> Contributors </h3>
 <ul>
 	<li> Geon Woo Kim </li>

@@ -31,7 +31,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
+ /*doqowepfe*/
+ /*test1*/
 #define KILO_VERSION "0.0.1"
 
 #ifdef __linux__
@@ -125,8 +126,7 @@ enum KEY_ACTION{
         CTRL_U = 21,        /* Ctrl-u */
         ESC = 27,           /* Escape */
         BACKSPACE =  127,   /* Backspace */
-        CTRL_N = 14,
-	/* The following are just soft codes, not really reported by the
+        /* The following are just soft codes, not really reported by the
          * terminal directly. */
         ARROW_LEFT = 1000,
         ARROW_RIGHT,
@@ -138,7 +138,7 @@ enum KEY_ACTION{
         PAGE_UP,
         PAGE_DOWN
 };
-int displayNumberFlag=0;
+
 void editorSetStatusMessage(const char *fmt, ...);
 
 /* =========================== Syntax highlights DB =========================
@@ -624,12 +624,10 @@ void editorDelRow(int at) {
 
     if (at >= E.numrows) return;
     row = E.row+at;
-    editorFreeRow(row);//???? œ ë°?ë©”ëª¨ë¦?? ë‹¹?´ì œ
+    editorFreeRow(row);
     memmove(E.row+at,E.row+at+1,sizeof(E.row[0])*(E.numrows-at-1));
-    for(int j = at; j < E.numrows-1;j++){
-	    E.row[j].idx--;
-    }//?„ìž¬ ì§€?ë???ë§ˆì?ë§‰ì??ê¹Œì§€ ?œì¹¸???¹ê¸°ê¸?
-    E.numrows--;//?„ì²´ ???? œ
+    for (int j = at; j < E.numrows-1; j++) E.row[j].idx++;
+    E.numrows--;
     E.dirty++;
 }
 
@@ -688,7 +686,7 @@ void editorRowAppendString(erow *row, char *s, size_t len) {
     row->chars = realloc(row->chars,row->size+len+1);
     memcpy(row->chars+row->size,s,len);
     row->size += len;
-    row->chars[row->size] = '\0';//ë§ˆì?ë§‰ì„ ?˜í???
+    row->chars[row->size] = '\0';
     editorUpdateRow(row);
     E.dirty++;
 }
@@ -912,14 +910,6 @@ void editorRefreshScreen(void) {
         }
 
         r = &E.row[filerow];
-
-	if(displayNumberFlag){
-		char curRow[6];
-		snprintf(curRow,sizeof(curRow),"d",filerow);
-		abAppend(&ab,"\x1b[36m",5);
-		abAppend(&ab,curRow,strlen(curRow));
-		abAppend(&ab,"\x1b[0m",4);
-	}
 
         int len = r->rsize - E.coloff;
         int current_color = -1;
@@ -1254,16 +1244,6 @@ void editorProcessKeypress(int fd) {
     case CTRL_L: /* ctrl+l, clear screen */
         /* Just refresht the line as side effect. */
         break;
-    case CTRL_N:
-	if(displayNumberFlag){
-		displayNumberFlag = 0;
-		editorSetStatusMessage("set number off");
-	}
-	else{
-		displayNumberFlag = 1;
-		editorSetStatusMessage("set number on");
-	}
-	break;
     case ESC:
         /* Nothing to do for ESC in this mode. */
         break;

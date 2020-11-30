@@ -33,6 +33,7 @@
  */
  /*doqowepfe*/
  /*test1*/
+ /*주석*/
 #define KILO_VERSION "0.0.1"
 
 #ifdef __linux__

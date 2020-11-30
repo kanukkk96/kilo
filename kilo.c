@@ -1,39 +1,3 @@
-/* Kilo -- A very simple editor in less than 1-kilo lines of code (as counted
- *         by "cloc"). Does not depend on libcurses, directly emits VT100
- *         escapes on the terminal.
- *
- * -----------------------------------------------------------------------
- *
- * Copyright (C) 2016 Salvatore Sanfilippo <antirez at gmail dot com>
- *
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *  *  Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *
- *  *  Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimer in the
- *     documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
- /*doqowepfe*/
- /*test1*/
- /*주석*/
 #define KILO_VERSION "0.0.1"
 
 #ifdef __linux__
@@ -115,6 +79,7 @@ static struct editorConfig E;
 
 enum KEY_ACTION{
         KEY_NULL = 0,       /* NULL */
+	CTRL_X = 24,	    /* CTRL-X */
         CTRL_C = 3,         /* Ctrl-c */
         CTRL_D = 4,         /* Ctrl-d */
         CTRL_F = 6,         /* Ctrl-f */
@@ -879,6 +844,29 @@ void abFree(struct abuf *ab) {
     free(ab->b);
 }
 
+void moveToLineEnd(){
+	int filerow = E.rowoff + E.cy;
+	int filecol = E.coloff + E.cx;
+
+	if(!filerow && !filecol)
+		return;
+	E.cx = E.row[E.rowoff + E.cy].size;
+}
+
+void removeOneLine(){
+	int filerow = E.rowoff + E.cy;
+	erow *row = (filerow >= E.numrows) ? NULL : &E.row[filerow];
+	int size = row -> size;
+
+	if(!row)
+		return;
+
+	moveToLineEnd();
+	for(int i = 0; i < size+1; i++){
+		editorDelChar();
+	}
+}
+
 /* This function writes the whole screen using VT100 escape characters
  * starting from the logical state of the editor in the global state 'E'. */
 void editorRefreshScreen(void) {
@@ -1201,6 +1189,10 @@ void editorProcessKeypress(int fd) {
         /* We ignore ctrl-c, it can't be so simple to lose the changes
          * to the edited file. */
         break;
+    
+    case CTRL_X:
+	removeOneLine();
+	break;
     case CTRL_Q:        /* Ctrl-q */
         /* Quit if the file was already saved. */
         if (E.dirty && quit_times) {

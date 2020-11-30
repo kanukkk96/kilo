@@ -87,6 +87,7 @@ enum KEY_ACTION{
         TAB = 9,            /* Tab */
         CTRL_L = 12,        /* Ctrl+l */
         ENTER = 13,         /* Enter */
+	CTRL_N = 14,        /* Ctrl_N */
         CTRL_Q = 17,        /* Ctrl-q */
         CTRL_S = 19,        /* Ctrl-s */
         CTRL_U = 21,        /* Ctrl-u */
@@ -104,6 +105,7 @@ enum KEY_ACTION{
         PAGE_UP,
         PAGE_DOWN
 };
+int displayNumberFlag=0;
 
 void editorSetStatusMessage(const char *fmt, ...);
 
@@ -900,6 +902,14 @@ void editorRefreshScreen(void) {
 
         r = &E.row[filerow];
 
+	 /* CTRL+N을 입력했을때 */
+        if(displayNumberFlag){
+                char curRow[6];
+                snprintf(curRow,sizeof(curRow),"%d ",filerow);
+                abAppend(&ab,"\x1b[36m",5);
+                abAppend(&ab,curRow,strlen(curRow));
+                abAppend(&ab,"\x1b[0m",4);
+        }
         int len = r->rsize - E.coloff;
         int current_color = -1;
         if (len > 0) {
@@ -1237,6 +1247,21 @@ void editorProcessKeypress(int fd) {
     case CTRL_L: /* ctrl+l, clear screen */
         /* Just refresht the line as side effect. */
         break;
+
+	 case CTRL_N:
+        /* ctrl+n */
+        /* 현재 화면 줄 번호를 나타내준다*/
+                if(displayNumberFlag){
+                        displayNumberFlag=0;
+                        editorSetStatusMessage("set number off");
+                }
+                else{
+                        displayNumberFlag=1;
+                        editorSetStatusMessage("set number on");
+                }
+        break;
+
+
     case ESC:
         /* Nothing to do for ESC in this mode. */
         break;
@@ -1259,6 +1284,10 @@ void updateWindowSize(void) {
         exit(1);
     }
     E.screenrows -= 2; /* Get room for status bar. */
+    
+displayNumberFlag=0;
+
+
 }
 
 void handleSigWinCh(int unused __attribute__((unused))) {

@@ -79,7 +79,6 @@ static struct editorConfig E;
 
 enum KEY_ACTION{
         KEY_NULL = 0,       /* NULL */
-	CTRL_X = 24,	    /* CTRL-X */
         CTRL_C = 3,         /* Ctrl-c */
         CTRL_D = 4,         /* Ctrl-d */
         CTRL_F = 6,         /* Ctrl-f */
@@ -87,10 +86,12 @@ enum KEY_ACTION{
         TAB = 9,            /* Tab */
         CTRL_L = 12,        /* Ctrl+l */
         ENTER = 13,         /* Enter */
-	CTRL_N = 14,        /* Ctrl_N */
+	CTRL_N = 14,	    /* CTRL_N : display row index number*/
+	CTRL_O = 15, 		/* HELP*/
         CTRL_Q = 17,        /* Ctrl-q */
         CTRL_S = 19,        /* Ctrl-s */
         CTRL_U = 21,        /* Ctrl-u */
+	CTRL_X = 24,		/* CTRL-X */
         ESC = 27,           /* Escape */
         BACKSPACE =  127,   /* Backspace */
         /* The following are just soft codes, not really reported by the
@@ -105,8 +106,9 @@ enum KEY_ACTION{
         PAGE_UP,
         PAGE_DOWN
 };
-int displayNumberFlag=0;
 
+int displayNumberFlag=0;
+int helpFlag = 0;
 void editorSetStatusMessage(const char *fmt, ...);
 
 /* =========================== Syntax highlights DB =========================
@@ -882,11 +884,12 @@ void editorRefreshScreen(void) {
     for (y = 0; y < E.screenrows; y++) {
         int filerow = E.rowoff+y;
 
-        if (filerow >= E.numrows) {
-            if (E.numrows == 0 && y == E.screenrows/3) {
+        if (filerow >= E.numrows || helpFlag ) {
+            if ((E.numrows == 0|| helpFlag) && y == E.screenrows/3) {
+		//welcome 메시지 출력
                 char welcome[80];
-                int welcomelen = snprintf(welcome,sizeof(welcome),
-                    "Kilo editor -- verison %s\x1b[0K\r\n", KILO_VERSION);
+               	int welcomelen = snprintf(welcome,sizeof(welcome),
+                    "오픈소스 Kilo editor -- version team_3 %s\x1b[0K\r\n", KILO_VERSION);
                 int padding = (E.screencols-welcomelen)/2;
                 if (padding) {
                     abAppend(&ab,"~",1);
@@ -894,6 +897,23 @@ void editorRefreshScreen(void) {
                 }
                 while(padding--) abAppend(&ab," ",1);
                 abAppend(&ab,welcome,welcomelen);
+		//ctrl_o function about introduce
+		char function[15][80]={"\x1b[7m기존에 있던 커맨드\x1b[27m forked from antirez/kilo\r\n", "\x1b[7mCTRL-S\x1b[27m: Save\r\n","\x1b[7mCTRL-Q\x1b[27m: Quit\r\n",
+					"\x1b[7mCTRL-F\x1b[27m: Find string in file (ESC to exit search, arrows to navigate)\r\n",
+				       	"\x1b[7m추가로 구현한 커맨드\x1b[27m\r\n",
+					 "\x1b[7mCTRL-X\x1b[27m: Remove one line\r\n",
+			   		 "\x1b[7mCTRL-N\x1b[27m: display row numbers\r\n","\x1b[7mCTRL-O\x1b[27m: Help and Re-display\r\n",
+					 "\x1b[7mRebuilding By Geon woo, Deok Yong, Byeong Ik \x1b[27m: \r\n"};
+			    for(int i=0;i<15;++i){
+			    	int padding = (E.screencols-welcomelen)/3;
+			    	if (padding) {
+			        abAppend(&ab,"?",1);
+			        padding--;
+			        	}
+				    while(padding--) abAppend(&ab," ",1);
+				    abAppend(&ab,function[i],strlen(function[i]));
+				}
+				abAppend(&ab,"\x1b[0m",4); //컬러 해제
             } else {
                 abAppend(&ab,"~\x1b[0K\r\n",7);
             }
@@ -1261,6 +1281,16 @@ void editorProcessKeypress(int fd) {
                 }
         break;
 
+      case CTRL_O:
+	if(helpFlag){
+		helpFlag = 0;
+		editorSetStatusMessage("show help off");
+	}
+	else{
+		helpFlag = 1;
+		editorSetStatusMessage("show help on");
+	}
+	break;
 
     case ESC:
         /* Nothing to do for ESC in this mode. */
@@ -1277,25 +1307,7 @@ int editorFileWasModified(void) {
     return E.dirty;
 }
 
-void updateWindowSize(void) {
-    if (getWindowSize(STDIN_FILENO,STDOUT_FILENO,
-                      &E.screenrows,&E.screencols) == -1) {
-        perror("Unable to query the screen for size (columns / rows)");
-        exit(1);
-    }
-    E.screenrows -= 2; /* Get room for status bar. */
-    
-displayNumberFlag=0;
 
-
-}
-
-void handleSigWinCh(int unused __attribute__((unused))) {
-    updateWindowSize();
-    if (E.cy > E.screenrows) E.cy = E.screenrows - 1;
-    if (E.cx > E.screencols) E.cx = E.screencols - 1;
-    editorRefreshScreen();
-}
 
 void initEditor(void) {
     E.cx = 0;
@@ -1307,8 +1319,15 @@ void initEditor(void) {
     E.dirty = 0;
     E.filename = NULL;
     E.syntax = NULL;
-    updateWindowSize();
-    signal(SIGWINCH, handleSigWinCh);
+    if (getWindowSize(STDIN_FILENO,STDOUT_FILENO,
+			    &E.screenrows,&E.screencols)== -1)
+    {
+	    perror("Unable to query the screen for size (columns / rows)");
+	    exit(1);
+    }
+    E.screenrows -= 2; 
+    displayNumberFlag = 0;
+    helpFlag = 0;
 }
 
 int main(int argc, char **argv) {
@@ -1322,7 +1341,7 @@ int main(int argc, char **argv) {
     editorOpen(argv[1]);
     enableRawMode(STDIN_FILENO);
     editorSetStatusMessage(
-        "HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find");
+        "HELP: Please press CTRL_O");
     while(1) {
         editorRefreshScreen();
         editorProcessKeypress(STDIN_FILENO);

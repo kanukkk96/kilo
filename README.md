@@ -12,6 +12,7 @@ Keys:
     CTRL-F: Find string in file
     CTRL-X: Remove one line
     CTRL-N: Display row number
+    CTRL-O: Help & Re-display
 
 <h3> Contributors </h3>
 <ul>
